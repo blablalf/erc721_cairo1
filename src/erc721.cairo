@@ -12,7 +12,7 @@ mod erc721 {
     use traits::Into;
     // 2 lines below can make is_zero() of ContractAddress usable to assert if the address is 0
     use zeroable::Zeroable;
-    use starknet::ContractAddressZeroable;
+    use starknet::contract_address::ContractAddressZeroable;
 
     struct Storage {
         name: felt252,
