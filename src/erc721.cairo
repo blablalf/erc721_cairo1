@@ -12,7 +12,6 @@ mod erc721 {
     use traits::Into;
     // 2 lines below can make is_zero() of ContractAddress usable to assert if the address is 0
     use zeroable::Zeroable;
-    use starknet::contract_address::ContractAddressZeroable;
 
     struct Storage {
         name: felt252,
@@ -22,6 +21,7 @@ mod erc721 {
         token_approvals: LegacyMap::<u256, ContractAddress>,
         // (owner, operator)
         operator_approvals: LegacyMap::<(ContractAddress, ContractAddress), bool>,
+        token_name: LegacyMap::<u256, felt252>, // token_id => token_name
     }
 
     #[event]
@@ -211,4 +211,11 @@ mod erc721 {
         first_token_id: u256, 
         batch_size: u256
     ) {}
+
+    // Normally we should use the ERC165 for this function, but we do it a nasty way here.
+    #[view]
+    fn supportsInterface(interfaceId: felt252) -> bool {
+        if (interfaceId == 0x80ac58cd) {return true;} // ERC721 -> 0x80ac58cd
+        false
+    }
 }
