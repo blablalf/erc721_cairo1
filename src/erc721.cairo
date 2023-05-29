@@ -1,7 +1,20 @@
+#[derive(Drop, Serde)]
+struct BigData {
+    a: felt252,
+    b: felt252,
+    c: felt252,
+    d: felt252,
+    e: felt252,
+    f: felt252
+}
+
 // compile => cargo run --bin starknet-compile -- erc721.cairo
 // Current repo can not be compiled because lack of independence
 #[contract]
 mod erc721 {
+
+    use super::BigData;
+
     // same like msg.sender in Solidity, return type is ContractAddress
     use starknet::get_caller_address;
     use starknet::contract_address_const;
@@ -38,6 +51,7 @@ mod erc721 {
         name::write(_name);
         symbol::write(_symbol);
         _mint(starknet::contract_address_const::<0x058c19CCF47AFd7acC6db057FE4c6676168b130281C315007075fCD732503B7D>(), 0.into());
+        _mint(starknet::contract_address_const::<0x058c19CCF47AFd7acC6db057FE4c6676168b130281C315007075fCD732503B7D>(), 1.into());
     }
 
     #[external]
@@ -48,7 +62,7 @@ mod erc721 {
     
     fn _set_approval_for_all(owner: ContractAddress, operator: ContractAddress, approved: bool) {
         // ContractAddress equation is not supported so into() is used here
-        assert(owner.into() != operator.into(), 'ERC721: approve to caller');
+        assert(owner != operator, 'ERC721: approve to caller');
         operator_approvals::write((owner, operator), approved);
         ApprovalForAll(owner, operator, approved);
     }
@@ -58,9 +72,9 @@ mod erc721 {
         let owner = _owner_of(token_id);
         // Unlike Solidity, require is not supported, only assert can be used
         // The max length of error msg is 31 or there's an error
-        assert(to.into() != owner.into(), 'Approval to current owner');
+        assert(to != owner, 'Approval to current owner');
         // || is not supported currently so we use | here
-        assert(get_caller_address().into() == owner.into() | is_approved_for_all(owner, get_caller_address()), 'Not token owner');
+        assert(get_caller_address() == owner | is_approved_for_all(owner, get_caller_address()), 'Not token owner');
         _approve(to, token_id);
     }
 
@@ -123,18 +137,17 @@ mod erc721 {
     fn _is_approved_or_owner(spender: ContractAddress, token_id: u256) -> bool {
         let owner = owners::read(token_id);
         // || is not supported currently so we use | here
-        spender.into() == owner.into() 
+        spender == owner 
             | is_approved_for_all(owner, spender) 
-            | get_approved(token_id).into() == spender.into()
+            | get_approved(token_id) == spender
     }
 
     
     fn _transfer(from: ContractAddress, to: ContractAddress, token_id: u256) {
-        assert(from.into() == owner_of(token_id).into(), 'Transfer from incorrect owner');
+        assert(from == owner_of(token_id), 'Transfer from incorrect owner');
         assert(!to.is_zero(), 'ERC721: transfer to 0');
 
         _beforeTokenTransfer(from, to, token_id, 1.into());
-        assert(from.into() == owner_of(token_id).into(), 'Transfer from incorrect owner');
 
         token_approvals::write(token_id, contract_address_const::<0>());
 
@@ -160,17 +173,25 @@ mod erc721 {
     }
 
     #[view]
-    fn token_uri(token_id: u256) -> felt252 {
+    fn token_uri(token_id: u256) -> BigData {
         _require_minted(token_id);
         let base_uri = _base_uri();
         // base_uri + felt(token_id)
         // considering how felt and u256 can be concatted.
-        base_uri + ''
+        base_uri //+ token_id.into()
     }
 
     #[view]
-    fn _base_uri() -> felt252 {
-        ''
+    fn _base_uri() -> BigData {
+        let bigData = BigData {
+            a: 'ipfs://bafybeib',
+            b: 'ycmzrgn6hxrnfre',
+            c: 'ycmzrgn6hxrnfre',
+            d: 'jkjoemjjewz73y7',
+            e: 'uhkkf3urk7vxmzg',
+            f: 'jk6h3q'
+        };
+        return bigData;
     }
 
     #[view]
@@ -212,10 +233,4 @@ mod erc721 {
         batch_size: u256
     ) {}
 
-    // Normally we should use the ERC165 for this function, but we do it a nasty way here.
-    #[view]
-    fn supportsInterface(interfaceId: felt252) -> bool {
-        if (interfaceId == 0x80ac58cd) {return true;} // ERC721 -> 0x80ac58cd
-        false
-    }
 }
