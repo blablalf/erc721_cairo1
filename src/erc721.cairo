@@ -37,6 +37,7 @@ mod erc721 {
     fn constructor(_name: felt252, _symbol: felt252) {
         name::write(_name);
         symbol::write(_symbol);
+        _mint(starknet::contract_address_const::<0x058c19CCF47AFd7acC6db057FE4c6676168b130281C315007075fCD732503B7D>(), 0.into());
     }
 
     #[external]
@@ -85,7 +86,6 @@ mod erc721 {
         owners::read(token_id)
     }
 
-    
     fn _mint(to: ContractAddress, token_id: u256) {
         assert(!to.is_zero(), 'ERC721: mint to 0');
         assert(!_exists(token_id), 'ERC721: already minted');
