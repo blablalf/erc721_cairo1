@@ -1,19 +1,8 @@
-#[derive(Drop, Serde)]
-struct BigData {
-    a: felt252,
-    b: felt252,
-    c: felt252,
-    d: felt252,
-    e: felt252,
-    f: felt252
-}
-
+use core::serde::Serde;
 // compile => cargo run --bin starknet-compile -- erc721.cairo
 // Current repo can not be compiled because lack of independence
 #[contract]
 mod erc721 {
-
-    use super::BigData;
 
     // same like msg.sender in Solidity, return type is ContractAddress
     use starknet::get_caller_address;
@@ -25,6 +14,7 @@ mod erc721 {
     use traits::Into;
     // 2 lines below can make is_zero() of ContractAddress usable to assert if the address is 0
     use zeroable::Zeroable;
+    use array::ArrayTrait;
 
     struct Storage {
         name: felt252,
@@ -172,26 +162,24 @@ mod erc721 {
         token_approvals::read(token_id)
     }
 
-    #[view]
-    fn token_uri(token_id: u256) -> BigData {
-        _require_minted(token_id);
-        let base_uri = _base_uri();
-        // base_uri + felt(token_id)
-        // considering how felt and u256 can be concatted.
-        base_uri //+ token_id.into()
-    }
+    // #[view]
+    // fn token_uri(token_id: u256) -> Array<felt252> {
+    //     _require_minted(token_id);
+    //     let base_uri = _base_uri();
+    //     // base_uri + felt(token_id)
+    //     // considering how felt and u256 can be concatted.
+    //     base_uri //+ token_id.into()
+    // }
 
     #[view]
-    fn _base_uri() -> BigData {
-        let bigData = BigData {
-            a: 'ipfs://bafybeib',
-            b: 'ycmzrgn6hxrnfre',
-            c: 'ycmzrgn6hxrnfre',
-            d: 'jkjoemjjewz73y7',
-            e: 'uhkkf3urk7vxmzg',
-            f: 'jk6h3q'
-        };
-        return bigData;
+    fn _base_uri() -> (uint8, Array<felt252>) {
+        let mut a = ArrayTrait::new();
+        a.append('ipfs://bafybeib');
+        a.append('ycmzrgn6hxrnfre');
+        a.append('jkjoemjjewz73y7');
+        a.append('uhkkf3urk7vxmzg');
+        a.append('jk6h3q');
+        (a.len(), *a.serialize())
     }
 
     #[view]
