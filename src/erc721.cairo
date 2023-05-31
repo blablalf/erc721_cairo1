@@ -1,4 +1,3 @@
-use core::serde::Serde;
 // compile => cargo run --bin starknet-compile -- erc721.cairo
 // Current repo can not be compiled because lack of independence
 #[contract]
@@ -49,7 +48,6 @@ mod erc721 {
         _set_approval_for_all(get_caller_address(), operator, approved);
     }
 
-    
     fn _set_approval_for_all(owner: ContractAddress, operator: ContractAddress, approved: bool) {
         // ContractAddress equation is not supported so into() is used here
         assert(owner != operator, 'ERC721: approve to caller');
@@ -103,7 +101,6 @@ mod erc721 {
 
         _afterTokenTransfer(contract_address_const::<0>(), to, token_id, 1.into());
     }
-
     
     fn _burn(token_id: u256) {
         let owner = owner_of(token_id);
@@ -122,7 +119,6 @@ mod erc721 {
     fn _require_minted(token_id: u256) {
         assert(_exists(token_id), 'ERC721: invalid token ID');
     }
-
     
     fn _is_approved_or_owner(spender: ContractAddress, token_id: u256) -> bool {
         let owner = owners::read(token_id);
@@ -162,24 +158,23 @@ mod erc721 {
         token_approvals::read(token_id)
     }
 
-    // #[view]
-    // fn token_uri(token_id: u256) -> Array<felt252> {
-    //     _require_minted(token_id);
-    //     let base_uri = _base_uri();
-    //     // base_uri + felt(token_id)
-    //     // considering how felt and u256 can be concatted.
-    //     base_uri //+ token_id.into()
-    // }
+    #[view]
+    fn token_uri(token_id: u256) -> Array<felt252> {
+        //_require_minted(token_id);
+        let mut a = _base_uri();
+        a.append('/' + token_id.low.into());
+        a
+    }
 
     #[view]
-    fn _base_uri() -> (uint8, Array<felt252>) {
+    fn _base_uri() -> Array<felt252> {
         let mut a = ArrayTrait::new();
         a.append('ipfs://bafybeib');
         a.append('ycmzrgn6hxrnfre');
         a.append('jkjoemjjewz73y7');
         a.append('uhkkf3urk7vxmzg');
         a.append('jk6h3q');
-        (a.len(), *a.serialize())
+        a
     }
 
     #[view]
