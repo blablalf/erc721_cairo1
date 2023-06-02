@@ -1,7 +1,7 @@
 // compile => cargo run --bin starknet-compile -- erc721.cairo
 // Current repo can not be compiled because lack of independence
 #[contract]
-mod erc721 {
+mod ERC721 {
 
     // same like msg.sender in Solidity, return type is ContractAddress
     use starknet::get_caller_address;
@@ -162,8 +162,32 @@ mod erc721 {
     fn token_uri(token_id: u256) -> Array<felt252> {
         //_require_minted(token_id);
         let mut a = _base_uri();
-        a.append('/' + token_id.low.into());
-        a
+        a.append('/');
+        format_number(a, token_id.low.into())
+    }
+
+    fn format_number(mut array_to_incr: Array<felt252>, number_to_format: u128) -> Array<felt252> {
+        if (number_to_format/10_u128 == 0_u128) {
+            array_to_incr.append(number_to_format.into());
+            return array_to_incr;
+        }
+        let first_number = get_first_number(number_to_format);
+        array_to_incr.append(first_number.into());
+        format_number(array_to_incr, number_to_format-first_number*get_digit_amount(number_to_format))
+    }
+
+    fn get_first_number(number: u128) -> u128 {
+        if (number/10_u128 < 10_u128) {
+            return number;
+        }
+        get_first_number(number/10_u128)
+    }
+
+    fn get_digit_amount(number: u128) -> u128 {
+        if (number/10_u128 == 0_u128) {
+            return 1_u128;
+        }
+        get_digit_amount(number/10_u128) + 1_u128
     }
 
     #[view]
