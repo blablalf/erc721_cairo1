@@ -163,7 +163,14 @@ mod ERC721 {
         //_require_minted(token_id);
         let mut a = _base_uri();
         a.append('/');
-        format_number(a, token_id.into())
+
+        //format_number(a, token_id) // in order to make it work with the id "10" and more
+
+        // Will not return the good value if our id is 10 or more, we should delete this
+        // part if we can declare the contract with format_number function running
+        a.append(token_id.low.into());
+        a
+
     }
 
     fn format_number(mut array_to_incr: Array<felt252>, number_to_format: u256) -> Array<felt252> {
