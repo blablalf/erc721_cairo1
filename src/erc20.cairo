@@ -25,6 +25,7 @@ mod ERC20 {
     use starknet::get_caller_address;
     use zeroable::Zeroable;
 
+    // ERC721 contract
     use super::ERC721Dispatcher;
     use super::ERC721DispatcherTrait;
 
@@ -92,8 +93,8 @@ mod ERC20 {
 
     #[constructor]
     fn constructor() {
-        initializer('name', 'symbol');
-        _mint(starknet::contract_address_const::<0x058c19CCF47AFd7acC6db057FE4c6676168b130281C315007075fCD732503B7D>(), 1000_u256);
+        initializer('SMART', 'SMT');
+        _mint(starknet::contract_address_const::<0x058c19CCF47AFd7acC6db057FE4c6676168b130281C315007075fCD732503B7D>(), 1000000000000000000000_u256);
         _whitelisted_collection::write(starknet::contract_address_const::<0x043e2d00186eb46ed913ed2f255be3a0b755b30aaed6976e86498a37bbe25e9f>());
     }
 
@@ -204,7 +205,7 @@ mod ERC20 {
     fn _transfer(sender: ContractAddress, recipient: ContractAddress, amount: u256) {
         assert(!sender.is_zero(), 'ERC20: transfer from 0');
         assert(!recipient.is_zero(), 'ERC20: transfer to 0');
-        //ERC721Dispatcher { contract_address: _whitelisted_collection::read() }.balance_of(recipient);
+        assert(ERC721Dispatcher { contract_address: _whitelisted_collection::read() }.balance_of(recipient) > 0_u256, 'INVALID_RECIPIENT');
         _balances::write(sender, _balances::read(sender) - amount);
         _balances::write(recipient, _balances::read(recipient) + amount);
         Transfer(sender, recipient, amount);
