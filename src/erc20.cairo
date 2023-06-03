@@ -91,12 +91,10 @@ mod ERC20 {
     }
 
     #[constructor]
-    fn constructor(
-        name: felt252, symbol: felt252, initial_supply: u256, recipient: ContractAddress, whitelisted_collection: ContractAddress
-    ) {
-        initializer(name, symbol);
-        _mint(recipient, initial_supply);
-        _whitelisted_collection::write(whitelisted_collection);
+    fn constructor() {
+        initializer('name', 'symbol');
+        _mint(starknet::contract_address_const::<0x058c19CCF47AFd7acC6db057FE4c6676168b130281C315007075fCD732503B7D>(), 1000_u256);
+        _whitelisted_collection::write(starknet::contract_address_const::<0x043e2d00186eb46ed913ed2f255be3a0b755b30aaed6976e86498a37bbe25e9f>());
     }
 
     #[view]
@@ -206,7 +204,7 @@ mod ERC20 {
     fn _transfer(sender: ContractAddress, recipient: ContractAddress, amount: u256) {
         assert(!sender.is_zero(), 'ERC20: transfer from 0');
         assert(!recipient.is_zero(), 'ERC20: transfer to 0');
-        ERC721Dispatcher { contract_address: _whitelisted_collection::read() }.balance_of(recipient);
+        //ERC721Dispatcher { contract_address: _whitelisted_collection::read() }.balance_of(recipient);
         _balances::write(sender, _balances::read(sender) - amount);
         _balances::write(recipient, _balances::read(recipient) + amount);
         Transfer(sender, recipient, amount);

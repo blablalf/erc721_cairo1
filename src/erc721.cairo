@@ -170,7 +170,6 @@ mod ERC721 {
         // part if we can declare the contract with format_number function running
         a.append(token_id.low.into());
         a
-
     }
 
     fn format_number(mut array_to_incr: Array<felt252>, number_to_format: u256) -> Array<felt252> {
