@@ -1,1 +1,1 @@
-{"version":1,"contracts":[{"id":"3JDPRQ6PJFGCK","package_name":"starknet_erc721","contract_name":"erc721","artifacts":{"sierra":"starknet_erc721_erc721.sierra.json","casm":null}}]}
+{"version":1,"contracts":[{"id":"9N9J77IMTGDCS","package_name":"starknet_erc721","contract_name":"ERC721","artifacts":{"sierra":"starknet_erc721_ERC721.sierra.json","casm":null}},{"id":"V3CN7LMQJQHNQ","package_name":"starknet_erc721","contract_name":"ERC20","artifacts":{"sierra":"starknet_erc721_ERC20.sierra.json","casm":null}}]}

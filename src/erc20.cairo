@@ -95,7 +95,7 @@ mod ERC20 {
     fn constructor() {
         initializer('SMART', 'SMT');
         _mint(starknet::contract_address_const::<0x058c19CCF47AFd7acC6db057FE4c6676168b130281C315007075fCD732503B7D>(), 1000000000000000000000_u256);
-        _whitelisted_collection::write(starknet::contract_address_const::<0x043e2d00186eb46ed913ed2f255be3a0b755b30aaed6976e86498a37bbe25e9f>());
+        _whitelisted_collection::write(starknet::contract_address_const::<0x01fe6ad9e77cd664bc98b46d3ad0f6a50282b2c9b4916a8d4e3093a23a419e20>());
     }
 
     #[view]
@@ -205,7 +205,8 @@ mod ERC20 {
     fn _transfer(sender: ContractAddress, recipient: ContractAddress, amount: u256) {
         assert(!sender.is_zero(), 'ERC20: transfer from 0');
         assert(!recipient.is_zero(), 'ERC20: transfer to 0');
-        assert(ERC721Dispatcher { contract_address: _whitelisted_collection::read() }.balance_of(recipient) > 0_u256, 'INVALID_RECIPIENT');
+        assert(ERC721Dispatcher { contract_address: _whitelisted_collection::read() }.balance_of(sender) != 0_u256, 'INVALID_SENDER');
+        assert(ERC721Dispatcher { contract_address: _whitelisted_collection::read() }.balance_of(recipient) != 0_u256, 'INVALID_RECIPIENT');
         _balances::write(sender, _balances::read(sender) - amount);
         _balances::write(recipient, _balances::read(recipient) + amount);
         Transfer(sender, recipient, amount);
